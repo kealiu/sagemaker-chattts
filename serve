@@ -1,0 +1,30 @@
+#!/bin/env python3
+
+from typing import Union
+from pydantic import BaseModel
+from fastapi import FastAPI
+import uvicorn
+
+import torch
+
+class ReqText(BaseModel):
+    text: str
+    infercode: dict | None = None
+    refinetext: dict | None = None
+
+app = FastAPI()
+
+@app.get("/ping")
+def ping():
+    return {"status": 200}
+
+# the post
+@app.post("/invocations")
+def invocations(req: ReqText):
+    resp = {}
+    resp['gpu'] = torch.cuda.is_available()
+    resp['text'] = req.text
+    return resp
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8080)
