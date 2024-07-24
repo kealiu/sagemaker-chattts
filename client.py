@@ -1,9 +1,14 @@
 import json
 import boto3
+import base64
+import torch
+import torchaudio
+import numpy as np
+
+import copy
 
 content_type = "application/json"
-request_body = {"text": "This is a test with NER in America with \
-            Amazon and Microsoft in Seattle, writing random stuff."}
+request_body = {"text": "你好,我是amazon sagemaker ChatTTS,欢迎你."}
 
 endpoint_name="sg"
 
@@ -21,4 +26,11 @@ response = runtime_sm_client.invoke_endpoint(
 
 #Parse results
 result = json.loads(response['Body'].read().decode())
-print(result)
+
+# save
+# wavs = base64.b64decode(result['wavs'])
+# wavs = np.array(json.loads(wavs))
+wavs = result['wavs']
+for i in range(len(wavs)):
+    with open (f"output_{i}.wav", "wb+") as f:
+        f.write(base64.b64decode(wavs[i]))
